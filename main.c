@@ -29,8 +29,8 @@ int32_t alc_shm(uint64_t sz){
         name[i] = (rand() & 23) + 97;
     }
     name[7] = 0;
-    int32_t fd = shm_open(name, O_RDWR | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR | S_IWOTH | S_IROTH);
-    shm_unlink(name);
+    int32_t fd = shm_open((char *)name, O_RDWR | O_CREAT | O_EXCL, S_IWUSR | S_IRUSR | S_IWOTH | S_IROTH);
+    shm_unlink((char *)name);
     ftruncate(fd, sz);
 
     return fd;
@@ -114,7 +114,7 @@ struct xdg_wm_base_listener sh_list = {
     .ping = sh_ping
 };
 
-void reg_glob(void* data, struct wl_registry* reg, uint32_t name, int8_t* intf, uint32_t v){
+void reg_glob(void* data, struct wl_registry* reg, uint32_t name, const char* intf, uint32_t v){
     if(!strcmp(intf, wl_compositor_interface.name)){
         comp = wl_registry_bind(reg, name, &wl_compositor_interface, 4);
     }
@@ -137,7 +137,7 @@ struct wl_registry_listener reg_list = {
     .global_remove = reg_glob_rem
 };
 
-int8_t main() {
+int main() {
     struct wl_display* disp = wl_display_connect(0);
     struct wl_registry* reg = wl_display_get_registry(disp);
     wl_registry_add_listener(reg, &reg_list, 0);
